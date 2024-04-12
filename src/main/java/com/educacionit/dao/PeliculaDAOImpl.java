@@ -197,4 +197,47 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 			System.out.println("No se pudo eliminar la película con código: " + codigo);
 		}
 	}
+	
+	@Override
+	public void modificarPelicula(Pelicula pelicula) throws SQLException {
+		Connection connection = null;
+		PreparedStatement statement = null;
+
+		connection = getConnection();
+		String queryP = "UPDATE peliculas SET titulo = ?, director = ?, url = ?, imagen = ? WHERE codigo = ?";
+		statement = connection.prepareStatement(queryP);
+		statement.setString(1, pelicula.getTitulo());
+		statement.setString(2, pelicula.getDirector());
+		statement.setString(3, pelicula.getUrl());
+		statement.setBytes(4, pelicula.getImagen());
+		statement.setInt(5, pelicula.getCodigo());
+		int rowsAffectedP = statement.executeUpdate();
+		
+		if (rowsAffectedP == 0) {
+			System.out.println("No se pudo modificar la película: " + pelicula);
+		}
+
+		// Eliminar los géneros de la película en la tabla de películas_generos
+		String queryPG = "DELETE FROM peliculas_generos WHERE codigoPelicula = ?";
+		statement = connection.prepareStatement(queryPG);
+		statement.setInt(1, pelicula.getCodigo());
+		int rowsAffectedPG = statement.executeUpdate();
+		
+		if (rowsAffectedPG == 0) {
+			System.out.println("No se pudo modificar la relación película-géneros de la película: " + pelicula);
+		}
+
+		// Insertar los nuevos géneros de la película en la tabla de películas_generos
+		for (Genero genero : pelicula.getGeneros()) {
+			queryPG = "INSERT INTO peliculas_generos (codigoPelicula, idGenero) VALUES (?, ?)";
+			statement = connection.prepareStatement(queryPG);
+			statement.setInt(1, pelicula.getCodigo());
+			statement.setInt(2, genero.getId());
+			statement.executeUpdate();
+				
+			if (rowsAffectedPG == 0) {
+				System.out.println("No se pudo modificar la relación película-géneros de la película: " + pelicula);
+			}
+		}
+	}
 }

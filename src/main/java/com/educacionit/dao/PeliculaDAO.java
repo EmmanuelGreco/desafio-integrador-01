@@ -14,4 +14,5 @@ public interface PeliculaDAO {
 	Pelicula mostrarDetallePelicula(int codigo) throws SQLException;
 	void agregarPelicula(Pelicula pelicula) throws SQLException;
 	void eliminarPelicula(int codigo) throws SQLException;
+	void modificarPelicula(Pelicula pelicula) throws SQLException;
 }
