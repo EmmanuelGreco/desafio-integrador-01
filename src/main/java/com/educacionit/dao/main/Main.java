@@ -1,9 +1,16 @@
 package com.educacionit.dao.main;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.educacionit.dao.GeneroDAO;
+import com.educacionit.dao.GeneroDAOImpl;
 import com.educacionit.dao.PeliculaDAO;
 import com.educacionit.dao.PeliculaDAOImpl;
 import com.educacionit.dao.PeliculaGeneroDAO;
@@ -35,6 +42,7 @@ public class Main {
 			+ "\n--------------------------------------------------------------------------------------------------";
 	private static final String VOLVERHOME = "\n¡Volvemos al HOME!";
 	private static final PeliculaDAO peliculaDAO = new PeliculaDAOImpl();
+	private static final GeneroDAO generoDAO = new GeneroDAOImpl();
 	private static final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAOImpl();
 	private static final Scanner scanner = new Scanner(System.in);
 	private static final String HASTA_LUEGO =
@@ -192,8 +200,26 @@ public class Main {
 		System.out.println("---------------------------------------------------------------------");			
 	}
 	
-	private static void agregarPelicula() {		
-		
+	private static void agregarPelicula() throws SQLException {
+	    System.out.print("\nIngrese el título de la película: ");
+	    String titulo = scanner.nextLine();
+	    System.out.print("Ingrese el/la director/a de la película: ");
+	    String director = scanner.nextLine();
+	    System.out.print("Ingrese la URL de la película: ");
+	    String url = scanner.nextLine();
+	    System.out.print("¿Desea agregar la imagen de la película ahora? (S para SI / N para NO): ");
+	    byte[] imagen = obtenerImagenConsulta(scanner);
+        
+	    // Obtener los géneros disponibles en la base de datos, mostrarlos y luego seleccionarlos
+        List<Genero> generosDisponibles = generoDAO.obtenerTodosGeneros();
+        List<Genero> generosSeleccionados = generosDisponiblesYgenerosSeleccionados(generosDisponibles);
+	    
+	    // Luego, utiliza el método addMovie de MovieDAO para agregar la película a la base de datos
+        Pelicula nuevaPelicula = new Pelicula(titulo, director, url, imagen, generosSeleccionados);
+        peliculaDAO.agregarPelicula(nuevaPelicula);
+	    System.out.println("\nPelícula agregada correctamente!");
+	    System.out.println(VOLVERHOME);
+	    return;
 	}
 	
 	private static void eliminarPelicula() {
@@ -203,4 +229,66 @@ public class Main {
 	private static void modificarPelicula() {
 		
 	}
+	
+	private static List<Genero> generosDisponiblesYgenerosSeleccionados(List<Genero> generosDisponibles) {
+        System.out.println("Géneros disponibles:");
+        for (int i = 0; i < generosDisponibles.size(); i++) {
+            System.out.println((i + 1) + "- " + generosDisponibles.get(i).getNombre());
+        }
+        
+        List<Genero> generosSeleccionados = new ArrayList<>();
+        boolean entradaValida;
+        
+        do {
+	        System.out.print("Seleccione el/los género/s para la película (numéricos, separados por coma): ");
+	        String[] seleccion = scanner.nextLine().split(",");
+	        entradaValida = true;
+	        generosSeleccionados.clear();
+        
+	        for (String selec : seleccion) {
+	        	
+	        		int index = Integer.parseInt(selec.trim()) - 1;
+	        		if (index >= 0 && index < generosDisponibles.size()) {
+	        			generosSeleccionados.add(generosDisponibles.get(index));
+	        		} else {
+	        			System.out.println("Número fuera de rango. Por favor, seleccione números del 1 al 15!");
+	        			entradaValida = false;
+	        			break;
+	        		}
+	        }
+        } while (!entradaValida);
+        return generosSeleccionados;
+    }
+	
+	private static byte[] obtenerImagenConsulta(Scanner scanner) {
+		String opcionImagen;
+		
+        do {
+            opcionImagen = scanner.nextLine();            
+            if (!opcionImagen.equalsIgnoreCase("S") && !opcionImagen.equalsIgnoreCase("N")) {
+                System.out.print("Entrada inválida! Por favor, ingrese (S para SI / N para NO):");
+            }
+        } while (!opcionImagen.equalsIgnoreCase("S") && !opcionImagen.equalsIgnoreCase("N"));
+        
+        byte[] imagen;
+        
+        if (opcionImagen.equalsIgnoreCase("S")) {
+            System.out.print("Ingrese la ruta del archivo de imagen: ");
+            String rutaImagen = scanner.nextLine();
+            imagen = leerArchivoComoBytes(rutaImagen);
+        } else {
+        	imagen = null;
+        }
+        return imagen;
+	}
+	
+    private static byte[] leerArchivoComoBytes(String rutaArchivo) {
+        try {
+            Path archivo = Paths.get(rutaArchivo);
+            return Files.readAllBytes(archivo);
+        } catch (IOException IOExcep) {
+        	System.out.println("No se pudo cargar la imagen.");
+            return null;
+        }
+    }
 }
