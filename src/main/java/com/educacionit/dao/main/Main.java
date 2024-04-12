@@ -82,15 +82,15 @@ public class Main {
 		            agregarPelicula();
 		            break;
 		        case 8:
-		             eliminarPelicula();
-		             break;
+		            eliminarPelicula();
+		            break;
 		        case 9:
-		             modificarPelicula();
-		             break;
+		            modificarPelicula();
+		            break;
 		        case 10:
-		             System.out.print(HASTA_LUEGO);
-		             continuar = false;
-		             break;
+		            System.out.print(HASTA_LUEGO);
+		            continuar = false;
+		            break;
 				default:
 					System.out.println("\nError! Opción no válida. Por favor, seleccione una opción válida.\n");
 			}
@@ -222,8 +222,34 @@ public class Main {
 	    return;
 	}
 	
-	private static void eliminarPelicula() {
+	private static void eliminarPelicula() throws SQLException  {
+		System.out.println("\nListado de todas las películas:");
+		System.out.println("\nCódigo"	+ "	" + "| Título");
+		System.out.println("-----------------------------------------------");
+		List<Pelicula> peliculas = peliculaDAO.obtenerTodasPeliculas();
+		for (Pelicula pelicula : peliculas) {
+			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
+		}
+
+		System.out.print("\nIngrese el código de la película que desea eliminar (0 para cancelar): ");
+		int codigo = scanner.nextInt();
+		scanner.nextLine();
+		if (codigo == 0) {
+			System.out.println(VOLVERHOME);
+			return;
+		}
+		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
+		if (peliculaSeleccionada == null) {
+			System.out.println("No se encontró la película con el código " + codigo + "!");
+			System.out.println(VOLVERHOME);
+			return;
+		}
 		
+		// Utiliza el método deleteMovie de MovieDAO para eliminar la película de la base de datos
+		peliculaDAO.eliminarPelicula(codigo);
+		System.out.println("\nPelícula eliminada correctamente!");
+		System.out.println(VOLVERHOME);
+		return;
 	}
 	
 	private static void modificarPelicula() {

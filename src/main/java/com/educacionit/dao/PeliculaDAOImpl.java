@@ -170,4 +170,31 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 			}
 		}
 	}
+	
+	@Override
+	public void eliminarPelicula(int codigo) throws SQLException {
+		Connection connection = null;
+		PreparedStatement statement = null;
+	
+		connection = getConnection();
+		// Eliminar primero las filas relacionadas en peliculas_generos
+		String queryPG = "DELETE FROM peliculas_generos WHERE codigoPelicula = ?";
+		statement = connection.prepareStatement(queryPG);
+		statement.setInt(1, codigo);
+		int rowsAffectedPG = statement.executeUpdate();
+
+		if (rowsAffectedPG == 0) {
+			System.out.println("No se pudo eliminar la relación película-géneros de la película con código: " + codigo);
+		}
+
+		// Luego eliminar la película en la tabla peliculas
+		String queryP = "DELETE FROM peliculas WHERE codigo = ?";
+		statement = connection.prepareStatement(queryP);
+		statement.setInt(1, codigo);
+		int rowsAffectedP = statement.executeUpdate();
+		
+		if (rowsAffectedP == 0) {
+			System.out.println("No se pudo eliminar la película con código: " + codigo);
+		}
+	}
 }
