@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.educacionit.dao.ds.ConnectionDB;
+import com.educacionit.dao.model.Genero;
 import com.educacionit.dao.model.Pelicula;
 
 public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
@@ -126,5 +127,47 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 		pelicula.setImagen(resultSet.getBytes("imagen"));
 
 		return pelicula;
+	}
+	
+	@Override
+	public void agregarPelicula(Pelicula pelicula) throws SQLException {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+
+		connection = getConnection();
+		String queryP = "INSERT INTO peliculas (titulo, director, url, imagen) VALUES (?, ?, ?, ?)";
+		statement = connection.prepareStatement(queryP, PreparedStatement.RETURN_GENERATED_KEYS);
+		statement.setString(1, pelicula.getTitulo());
+		statement.setString(2, pelicula.getDirector());
+		statement.setString(3, pelicula.getUrl());
+		statement.setBytes(4, pelicula.getImagen());
+		int rowsAffectedP = statement.executeUpdate();
+		
+		if (rowsAffectedP == 0) {
+			System.out.println("No se pudo agregar la película: " + pelicula);
+		}
+			
+		// Obtener el ID de la película recién insertada
+		resultSet = statement.getGeneratedKeys();
+		int peliculaId = -1;
+		if (resultSet.next()) {
+			peliculaId = resultSet.getInt(1);
+		}
+
+		// Insertar los géneros de la película en la tabla de películas_generos
+		if (peliculaId != -1) {
+			for (Genero genero : pelicula.getGeneros()) {
+				String queryPG = "INSERT INTO peliculas_generos (codigoPelicula, idGenero) VALUES (?, ?)";
+				statement = connection.prepareStatement(queryPG);
+				statement.setInt(1, peliculaId);
+				statement.setInt(2, genero.getId());
+				int rowsAffectedPG = statement.executeUpdate();
+				
+				if (rowsAffectedPG == 0) {
+					System.out.println("No se pudo agregar la relación película-géneros de la película: " + pelicula);
+				}
+			}
+		}
 	}
 }
