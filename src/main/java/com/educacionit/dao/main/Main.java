@@ -104,12 +104,18 @@ public class Main {
 		mostrarPeliculasObtenidas(peliculasEncontradas);
 	}
 	
-	private static void buscarPeliculasPorGenero() {
-
+	private static void buscarPeliculasPorGenero() throws SQLException {
+		System.out.print("\nIngrese el género (o parte) de la/s película/s que desea buscar: ");
+		String genero = scanner.nextLine();
+		peliculaGeneroDAO.buscarPeliculasPorGenero(genero);
+		System.out.println(VOLVERHOME);
 	}
-	
-	private static void obtenerPeliculasPorGenero() {
 
+	private static void obtenerPeliculasPorGenero() throws SQLException {
+		System.out.print("\nIngrese el género (o parte) de la/s película/s que desea obtener: ");
+		String genero = scanner.nextLine();
+		List<Pelicula> peliculasEncontradas = peliculaGeneroDAO.obtenerPeliculasPorGenero(genero);
+		mostrarPeliculasObtenidas(peliculasEncontradas);
 	}
 	
 	private static void buscarTodasPeliculas() {
