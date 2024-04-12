@@ -118,12 +118,14 @@ public class Main {
 		mostrarPeliculasObtenidas(peliculasEncontradas);
 	}
 	
-	private static void buscarTodasPeliculas() {
-
+	private static void buscarTodasPeliculas() throws SQLException {
+		peliculaDAO.buscarTodasPeliculas();
+		System.out.println(VOLVERHOME);
 	}
 	
-	private static void obtenerTodasPeliculas() {
-
+	private static void obtenerTodasPeliculas() throws SQLException {
+		List<Pelicula> peliculasEncontradas = peliculaDAO.obtenerTodasPeliculas();
+		mostrarPeliculasObtenidas(peliculasEncontradas);
 	}
 	
 	private static void mostrarPeliculasObtenidas(List<Pelicula> peliculas) throws SQLException {

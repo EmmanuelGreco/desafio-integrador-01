@@ -14,6 +14,8 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 
 	private static final String SELECT_BY_TITLE = "SELECT codigo, titulo FROM peliculas WHERE titulo LIKE ?";
 	private static final String GET_BY_TITLE = "SELECT * FROM peliculas WHERE titulo LIKE ?";
+	private static final String SELECT_ALL_MOVIES = "SELECT codigo, titulo FROM peliculas";
+	private static final String GET_ALL_MOVIES = "SELECT * FROM peliculas";
 	private static final String SHOW_DETAILS = "SELECT * FROM peliculas WHERE codigo = ?";
 	
 	@Override
@@ -56,6 +58,48 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 			Pelicula pelicula = resultSetToPeliculaObtener(resultSet);
 			peliculas.add(pelicula);
 			}
+
+		return peliculas;
+	}
+	
+	@Override
+	public void buscarTodasPeliculas() throws SQLException {
+		Connection connection = getConnection();
+		PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_MOVIES);
+		ResultSet resultSet = preparedStatement.executeQuery();			
+		Boolean hayRegistros = resultSet.next();
+			
+		if (hayRegistros == false) {
+			System.out.println("\nNo se pudo encontrar la/s película/s");
+		} else {
+			System.out.println("\nListado de película/s encontrada/s:");
+			System.out.println("\n-----------------------------------------------");
+			System.out.println("Código"	+ "	" + "| Título");
+			System.out.println("-----------------------------------------------");
+				
+			// Se utiliza un DO-WHILE y no un while (resultSet.next());
+			// ya que la variable hayRegistros corre el puntero un lugar al usar la misma función.
+			do {
+				Integer codigoBuscado = resultSet.getInt(1);
+				String tituloBuscado = resultSet.getString(2);
+				System.out.println(codigoBuscado + "	| " + tituloBuscado);				
+			} while (resultSet.next());
+
+		System.out.println("-----------------------------------------------");
+		}
+	}
+	
+	@Override
+	public List<Pelicula> obtenerTodasPeliculas() throws SQLException {
+		List<Pelicula> peliculas = new ArrayList<>();
+		Connection connection = getConnection();
+		PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_MOVIES);
+		ResultSet resultSet = preparedStatement.executeQuery();
+			
+		while (resultSet.next()) {				
+			Pelicula pelicula = resultSetToPeliculaObtener(resultSet);
+			peliculas.add(pelicula);
+		}
 
 		return peliculas;
 	}
