@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.educacionit.exceptions.DBManagerException;
+
 public interface ConnectionDB {
 	
-	default Connection getConnection() throws SQLException {
+	default Connection getConnection() throws DBManagerException {
 		try {
 			
 			final String DBURL = "jdbc:mysql://localhost/desafio_integrador_01";
@@ -17,8 +19,9 @@ public interface ConnectionDB {
 			
 			return conn;		
 		
-		} catch (SQLException ex) {
-			throw new SQLException(ex.getMessage());					
+		} catch (SQLException sqlException) {			
+			throw new DBManagerException(DBManagerException.ERROR_1,
+					"No se pudo conectar a la base de datos MySQL" + sqlException.getMessage(), sqlException);			
 		}
 	}
 }
