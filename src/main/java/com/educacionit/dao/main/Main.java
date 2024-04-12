@@ -252,9 +252,50 @@ public class Main {
 		return;
 	}
 	
-	private static void modificarPelicula() {
-		
-	}
+	private static void modificarPelicula() throws SQLException  {
+		System.out.println("\nListado de todas las películas:");
+		System.out.println("\nCódigo"	+ "	" + "| Título");
+		System.out.println("-----------------------------------------------");
+		List<Pelicula> peliculas = peliculaDAO.obtenerTodasPeliculas();
+		for (Pelicula pelicula : peliculas) {
+			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
+		}
+
+		System.out.print("\nIngrese el código de la película que desea modificar (0 para cancelar): ");
+		int codigo = scanner.nextInt();
+		scanner.nextLine();
+		if (codigo == 0) {
+			System.out.println(VOLVERHOME);
+			return;
+		}
+		// Obtener la película actual para mostrar sus detalles
+		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
+		if (peliculaSeleccionada == null) {
+			System.out.println("No se encontró la película con el código " + codigo + "!");
+			System.out.println(VOLVERHOME);
+			return;
+		}
+
+        System.out.print("Ingrese el nuevo título de la película: ");
+        String nuevoTitulo = scanner.nextLine();
+        System.out.print("Ingrese el/la nuevo/a director/a de la película: ");
+        String nuevoDirector = scanner.nextLine();
+        System.out.print("Ingrese la nueva URL de la película: ");
+        String nuevaUrl = scanner.nextLine();
+        System.out.print("¿Desea modificar la imagen de la película ahora? (S para SI / N para NO): ");
+        byte[] nuevaImagen = obtenerImagenConsulta(scanner);
+
+        // Obtener los géneros disponibles en la base de datos, mostrarlos y luego seleccionarlos
+        List<Genero> generosDisponibles = generoDAO.obtenerTodosGeneros();
+        List<Genero> generosSeleccionados = generosDisponiblesYgenerosSeleccionados(generosDisponibles);
+
+        // Modificada la película con los datos facilitados
+        Pelicula peliculaModificada = new Pelicula(codigo, nuevoTitulo, nuevoDirector, nuevaUrl, nuevaImagen, generosSeleccionados);
+        peliculaDAO.modificarPelicula(peliculaModificada);
+        System.out.println("\nPelícula modificada correctamente!");
+        System.out.println(VOLVERHOME);
+        return;
+    }
 	
 	private static List<Genero> generosDisponiblesYgenerosSeleccionados(List<Genero> generosDisponibles) {
         System.out.println("Géneros disponibles:");
