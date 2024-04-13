@@ -55,5 +55,4 @@ En su información se puede observar
 9. Opcional: Se pide investigar el uso de Markdown para editar el archivo readme.md para que brinde una descripción del proyecto a realizar, las tecnologías aplicadas, el script de la base de datos, la versión de java utilizada, el autor del proyecto y un enlace a una red social del autor, referentemente linkedin.
 
 ### Autor del Proyecto
-- Emmanuel Greco [LinkedIn](www.linkedin.com/in/emmanuel-antonio-greco-689691b7)
-
+- Emmanuel Greco [LinkedIn](https://www.linkedin.com/in/emmanuel-antonio-greco-689691b7/)
