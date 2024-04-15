@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.educacionit.dao.GeneroDAO;
 import com.educacionit.dao.GeneroDAOImpl;
@@ -170,7 +172,7 @@ public class Main {
 		
 		if (opcion.equalsIgnoreCase("S")) {
 			do {
-				codigo = validarNumero("Ingrese el código de la película que desea ver, aunque no se haya filtrado (0 para cancelar): ");
+				codigo = validarNumero("\nIngrese el código de la película que desea ver (0 para cancelar): ");
 				opcionValida = true;
 			} while (!opcionValida);
 			
@@ -178,15 +180,30 @@ public class Main {
 				System.out.println(VOLVERHOME);
 				return;
 			}
-			mostrarDetallePelicula(codigo);
+			//mostrarDetallePelicula(codigo); Metodo que podía mostrar detalles de películas no filtradas.
+			mostrarDetallePelicula(codigo, peliculas);
 		}
 		System.out.println(VOLVERHOME);
 	}
 
-	private static void mostrarDetallePelicula(int codigo) throws DBManagerException {
-		Pelicula pelicula = peliculaDAO.mostrarDetallePelicula(codigo);
+	private static void mostrarDetallePelicula(int codigo, List<Pelicula> peliculas) throws DBManagerException {
+		/*Pelicula pelicula = peliculaDAO.mostrarDetallePelicula(codigo);
 		if (pelicula == null) {
 			System.out.println("\nLa película con código: " + codigo + " no existe en la base de datos MySQL!");
+			return;
+		}*/
+		// Método mencionado que podía mostrar detalles de películas no filtradas.	
+		
+		Pelicula pelicula = null;
+		for (Pelicula p : peliculas) {
+			if (p.getCodigo() == codigo) {
+				pelicula = p;
+				break;
+			}
+		}
+		
+		if (pelicula == null) {
+			System.out.println("\nLa película con código: " + codigo + " no fue filtrada en la obtención de películas, o bien, no existe!");
 			return;
 		}
 
@@ -236,20 +253,32 @@ public class Main {
 		for (Pelicula pelicula : peliculas) {
 			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
 		}
+		
+		Integer codigo;
+		Boolean opcionValida = false;
+		
+		do {
+			codigo = validarNumero("\nIngrese el código de la película que desea eliminar (0 para cancelar): ");
+			opcionValida = true;
+		} while (!opcionValida);
 
-		System.out.print("\nIngrese el código de la película que desea eliminar (0 para cancelar): ");
-		int codigo = scanner.nextInt();
-		scanner.nextLine();
 		if (codigo == 0) {
 			System.out.println(VOLVERHOME);
 			return;
 		}
-		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
-		if (peliculaSeleccionada == null) {
-			System.out.println("No se encontró la película con el código " + codigo + "!");
-			System.out.println(VOLVERHOME);
-			return;
+		
+		Pelicula pelicula = null;
+		for (Pelicula p : peliculas) {
+			if (p.getCodigo() == codigo) {
+				pelicula = p;
+				break;
+			}
 		}
+
+	    if (pelicula == null) {
+	        System.out.println("\nLa película con código: " + codigo + " no existe en la base de películas!");
+	        return;
+	    }		
 		
 		// Utiliza el método deleteMovie de MovieDAO para eliminar la película de la base de datos
 		peliculaDAO.eliminarPelicula(codigo);
@@ -267,20 +296,31 @@ public class Main {
 			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
 		}
 
-		System.out.print("\nIngrese el código de la película que desea modificar (0 para cancelar): ");
-		int codigo = scanner.nextInt();
-		scanner.nextLine();
+		Integer codigo;
+		Boolean opcionValida = false;
+		
+		do {
+			codigo = validarNumero("\nIngrese el código de la película que desea modificar (0 para cancelar): ");
+			opcionValida = true;
+		} while (!opcionValida);
+		
 		if (codigo == 0) {
 			System.out.println(VOLVERHOME);
 			return;
 		}
-		// Obtener la película actual para mostrar sus detalles
-		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
-		if (peliculaSeleccionada == null) {
-			System.out.println("No se encontró la película con el código " + codigo + "!");
-			System.out.println(VOLVERHOME);
-			return;
-		}
+		
+	    Pelicula pelicula = null;
+	    for (Pelicula p : peliculas) {
+	        if (p.getCodigo() == codigo) {
+	            pelicula = p;
+	            break;
+	        }
+	    }
+
+	    if (pelicula == null) {
+	        System.out.println("\nLa película con código: " + codigo + " no existe en la base de películas!");
+	        return;
+	    }
 
 		System.out.print("Ingrese el nuevo título de la película: ");
 		String nuevoTitulo = scanner.nextLine();
@@ -289,6 +329,7 @@ public class Main {
 		System.out.print("Ingrese la nueva URL de la película: ");
 		String nuevaUrl = scanner.nextLine();
 		System.out.print("¿Desea modificar la imagen de la película ahora? (S para SI / N para NO): ");
+		System.out.print("Si selecciona NO, igualmente se borrara la imagen original, pero no se cargara una nueva: ");
 		byte[] nuevaImagen = obtenerImagenConsulta(scanner);
 
 		// Obtener los géneros disponibles en la base de datos, mostrarlos y luego seleccionarlos
@@ -317,12 +358,20 @@ public class Main {
 	        String[] seleccion = scanner.nextLine().split(",");
 	        entradaValida = true;
 	        generosSeleccionados.clear();
+	        Set<Integer> indicesSeleccionados = new HashSet<>();
       
 	        for (String selec : seleccion) {
 	        	try {
 	        		int index = Integer.parseInt(selec.trim()) - 1;
 	        		if (index >= 0 && index < generosDisponibles.size()) {
-	        			generosSeleccionados.add(generosDisponibles.get(index));
+	        			if (!indicesSeleccionados.contains(index)) {
+	        				generosSeleccionados.add(generosDisponibles.get(index));
+	        				indicesSeleccionados.add(index);
+	        			} else {
+	        				System.out.println("Ya ha seleccionado este género! Por favor, seleccione otro diferente.");
+	        				entradaValida = false;
+	        				break;
+	        			}
 	        		} else {
 	        			System.out.println("Número fuera de rango. Por favor, seleccione números del 1 al 15!");
 	        			entradaValida = false;
@@ -331,12 +380,12 @@ public class Main {
 	        	} catch (NumberFormatException NumExcep) {
 	        		System.out.println("Entrada inválida. Por favor, ingrese números separados por coma!");
 	        		entradaValida = false;
-	        		break;
+                    break;
 	        	}
 	        }
-		} while (!entradaValida);
-		return generosSeleccionados;
-	}
+        } while (!entradaValida);
+        return generosSeleccionados;
+    }
   
 	private static byte[] obtenerImagenConsulta(Scanner scanner) {
 		String opcionImagen;
