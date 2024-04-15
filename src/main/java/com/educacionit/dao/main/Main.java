@@ -170,7 +170,7 @@ public class Main {
 		
 		if (opcion.equalsIgnoreCase("S")) {
 			do {
-				codigo = validarNumero("Ingrese el código de la película que desea ver, aunque no se haya filtrado (0 para cancelar): ");
+				codigo = validarNumero("\nIngrese el código de la película que desea ver, aunque no se haya filtrado (0 para cancelar): ");
 				opcionValida = true;
 			} while (!opcionValida);
 			
@@ -236,10 +236,15 @@ public class Main {
 		for (Pelicula pelicula : peliculas) {
 			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
 		}
+		
+		Integer codigo;
+		Boolean opcionValida = false;
+		
+		do {
+			codigo = validarNumero("\nIngrese el código de la película que desea eliminar (0 para cancelar): ");
+			opcionValida = true;
+		} while (!opcionValida);
 
-		System.out.print("\nIngrese el código de la película que desea eliminar (0 para cancelar): ");
-		int codigo = scanner.nextInt();
-		scanner.nextLine();
 		if (codigo == 0) {
 			System.out.println(VOLVERHOME);
 			return;
@@ -267,9 +272,14 @@ public class Main {
 			System.out.println(pelicula.getCodigo() + "	| " + pelicula.getTitulo());
 		}
 
-		System.out.print("\nIngrese el código de la película que desea modificar (0 para cancelar): ");
-		int codigo = scanner.nextInt();
-		scanner.nextLine();
+		Integer codigo;
+		Boolean opcionValida = false;
+		
+		do {
+			codigo = validarNumero("\nIngrese el código de la película que desea modificar (0 para cancelar): ");
+			opcionValida = true;
+		} while (!opcionValida);
+		
 		if (codigo == 0) {
 			System.out.println(VOLVERHOME);
 			return;
