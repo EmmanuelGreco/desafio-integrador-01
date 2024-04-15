@@ -170,7 +170,7 @@ public class Main {
 		
 		if (opcion.equalsIgnoreCase("S")) {
 			do {
-				codigo = validarNumero("\nIngrese el código de la película que desea ver, aunque no se haya filtrado (0 para cancelar): ");
+				codigo = validarNumero("\nIngrese el código de la película que desea ver (0 para cancelar): ");
 				opcionValida = true;
 			} while (!opcionValida);
 			
@@ -178,15 +178,30 @@ public class Main {
 				System.out.println(VOLVERHOME);
 				return;
 			}
-			mostrarDetallePelicula(codigo);
+			//mostrarDetallePelicula(codigo); Metodo que podía mostrar detalles de películas no filtradas.
+			mostrarDetallePelicula(codigo, peliculas);
 		}
 		System.out.println(VOLVERHOME);
 	}
 
-	private static void mostrarDetallePelicula(int codigo) throws DBManagerException {
-		Pelicula pelicula = peliculaDAO.mostrarDetallePelicula(codigo);
+	private static void mostrarDetallePelicula(int codigo, List<Pelicula> peliculas) throws DBManagerException {
+		/*Pelicula pelicula = peliculaDAO.mostrarDetallePelicula(codigo);
 		if (pelicula == null) {
 			System.out.println("\nLa película con código: " + codigo + " no existe en la base de datos MySQL!");
+			return;
+		}*/
+		// Método mencionado que podía mostrar detalles de películas no filtradas.	
+		
+		Pelicula pelicula = null;
+		for (Pelicula p : peliculas) {
+			if (p.getCodigo() == codigo) {
+				pelicula = p;
+				break;
+			}
+		}
+		
+		if (pelicula == null) {
+			System.out.println("\nLa película con código: " + codigo + " no fue filtrada en la obtención de películas, o bien, no existe!");
 			return;
 		}
 
@@ -249,12 +264,19 @@ public class Main {
 			System.out.println(VOLVERHOME);
 			return;
 		}
-		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
-		if (peliculaSeleccionada == null) {
-			System.out.println("No se encontró la película con el código " + codigo + "!");
-			System.out.println(VOLVERHOME);
-			return;
+		
+		Pelicula pelicula = null;
+		for (Pelicula p : peliculas) {
+			if (p.getCodigo() == codigo) {
+				pelicula = p;
+				break;
+			}
 		}
+
+	    if (pelicula == null) {
+	        System.out.println("\nLa película con código: " + codigo + " no existe en la base de películas!");
+	        return;
+	    }		
 		
 		// Utiliza el método deleteMovie de MovieDAO para eliminar la película de la base de datos
 		peliculaDAO.eliminarPelicula(codigo);
@@ -284,13 +306,19 @@ public class Main {
 			System.out.println(VOLVERHOME);
 			return;
 		}
-		// Obtener la película actual para mostrar sus detalles
-		Pelicula peliculaSeleccionada = peliculaDAO.mostrarDetallePelicula(codigo);
-		if (peliculaSeleccionada == null) {
-			System.out.println("No se encontró la película con el código " + codigo + "!");
-			System.out.println(VOLVERHOME);
-			return;
-		}
+		
+	    Pelicula pelicula = null;
+	    for (Pelicula p : peliculas) {
+	        if (p.getCodigo() == codigo) {
+	            pelicula = p;
+	            break;
+	        }
+	    }
+
+	    if (pelicula == null) {
+	        System.out.println("\nLa película con código: " + codigo + " no existe en la base de películas!");
+	        return;
+	    }
 
 		System.out.print("Ingrese el nuevo título de la película: ");
 		String nuevoTitulo = scanner.nextLine();

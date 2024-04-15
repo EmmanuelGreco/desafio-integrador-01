@@ -18,7 +18,7 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 	private static final String GET_BY_TITLE = "SELECT * FROM peliculas WHERE titulo LIKE ?";
 	private static final String SELECT_ALL_MOVIES = "SELECT codigo, titulo FROM peliculas";
 	private static final String GET_ALL_MOVIES = "SELECT * FROM peliculas";
-	private static final String SHOW_DETAILS = "SELECT * FROM peliculas WHERE codigo = ?";
+	//private static final String SHOW_DETAILS = "SELECT * FROM peliculas WHERE codigo = ?";
 
 	@Override
 	public void buscarPeliculasPorTitulo(String titulo) throws DBManagerException {
@@ -121,7 +121,7 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 		return peliculas;
 	}
 	
-	@Override
+	/*@Override
 	public Pelicula mostrarDetallePelicula(int codigo) throws DBManagerException {
 		try (Connection connection = getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(SHOW_DETAILS)) {
@@ -135,7 +135,7 @@ public class PeliculaDAOImpl implements PeliculaDAO, ConnectionDB {
 					"No fue posible mostrar el detalle de la película debido a la siguiente causa: " + sqlEx.getMessage(), sqlEx);
 		}
 		return null;
-	}
+	}*/
 
 	private Pelicula resultSetToPeliculaObtener(ResultSet resultSet) throws SQLException {
 		Pelicula pelicula = new Pelicula();
