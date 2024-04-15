@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.educacionit.dao.GeneroDAO;
 import com.educacionit.dao.GeneroDAOImpl;
@@ -327,6 +329,7 @@ public class Main {
 		System.out.print("Ingrese la nueva URL de la película: ");
 		String nuevaUrl = scanner.nextLine();
 		System.out.print("¿Desea modificar la imagen de la película ahora? (S para SI / N para NO): ");
+		System.out.print("Si selecciona NO, igualmente se borrara la imagen original, pero no se cargara una nueva: ");
 		byte[] nuevaImagen = obtenerImagenConsulta(scanner);
 
 		// Obtener los géneros disponibles en la base de datos, mostrarlos y luego seleccionarlos
@@ -355,12 +358,20 @@ public class Main {
 	        String[] seleccion = scanner.nextLine().split(",");
 	        entradaValida = true;
 	        generosSeleccionados.clear();
+	        Set<Integer> indicesSeleccionados = new HashSet<>();
       
 	        for (String selec : seleccion) {
 	        	try {
 	        		int index = Integer.parseInt(selec.trim()) - 1;
 	        		if (index >= 0 && index < generosDisponibles.size()) {
-	        			generosSeleccionados.add(generosDisponibles.get(index));
+	        			if (!indicesSeleccionados.contains(index)) {
+	        				generosSeleccionados.add(generosDisponibles.get(index));
+	        				indicesSeleccionados.add(index);
+	        			} else {
+	        				System.out.println("Ya ha seleccionado este género! Por favor, seleccione otro diferente.");
+	        				entradaValida = false;
+	        				break;
+	        			}
 	        		} else {
 	        			System.out.println("Número fuera de rango. Por favor, seleccione números del 1 al 15!");
 	        			entradaValida = false;
@@ -369,12 +380,12 @@ public class Main {
 	        	} catch (NumberFormatException NumExcep) {
 	        		System.out.println("Entrada inválida. Por favor, ingrese números separados por coma!");
 	        		entradaValida = false;
-	        		break;
+                    break;
 	        	}
 	        }
-		} while (!entradaValida);
-		return generosSeleccionados;
-	}
+        } while (!entradaValida);
+        return generosSeleccionados;
+    }
   
 	private static byte[] obtenerImagenConsulta(Scanner scanner) {
 		String opcionImagen;
